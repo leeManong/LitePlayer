@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">LitePlayer</string>
+    <string name="video">视频</string>
+    <string name="search_hint">在当前列表中搜索</string>
+    <string name="music">音频</string>
+    <string name="directory">目录</string>
+    <string name="history">播放记录</string>
+    <string name="refresh">刷新</string>
+    <string name="search">搜索</string>
 </resources>
