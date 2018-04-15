@@ -7,4 +7,5 @@
     <string name="history">播放记录</string>
     <string name="refresh">刷新</string>
     <string name="search">搜索</string>
+    <string name="load_error_hint">刷新出问题了</string>
 </resources>
