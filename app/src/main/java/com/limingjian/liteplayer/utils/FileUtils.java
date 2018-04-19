@@ -89,4 +89,20 @@ public class FileUtils {
 
         return fileSize;
     }
+
+    public static boolean isMedia(String type) {
+        String[] types = {"avi", "rmvb", "rm", "asf", "divx", "mpg", "mpeg", "mpe", "wmv", "mp4", "mkv", "vob",
+                "CD", "OGG", "mp3", "asf", "wma", "wav", "mp3pro", "rm", "real", "ape", "module", "midi", "vqf"};
+        return Arrays.asList(types).contains(type.toLowerCase());
+    }
+
+    public static boolean isVideo(String type) {
+        String[] types = {"avi", "rmvb", "rm", "asf", "divx", "mpg", "mpeg", "mpe", "wmv", "mp4", "mkv", "vob"};
+        return Arrays.asList(types).contains(type.toLowerCase());
+    }
+
+    public static boolean isAudio(String type) {
+        String[] types = {"CD", "OGG", "mp3", "asf", "wma", "wav", "mp3pro", "rm", "real", "ape", "module", "midi", "vqf"};
+        return Arrays.asList(types).contains(type.toLowerCase());
+    }
 }
