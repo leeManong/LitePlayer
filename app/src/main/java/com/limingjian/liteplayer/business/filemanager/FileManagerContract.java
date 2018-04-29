@@ -1,6 +1,5 @@
 package com.limingjian.liteplayer.business.filemanager;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +11,11 @@ public interface FileManagerContract {
 
         void hideLoading();
 
-        void displayFiles();
+        void displayFiles(List<Map<String, Object>> list);
     }
 
     interface Presenter{
 
-        List<Map<String,Object>> loadFiles(String stringPath);
+        void loadFiles(String stringPath);
     }
 }

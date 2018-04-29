@@ -234,7 +234,7 @@ public class FileManagerFragment extends BaseFragment<FileManagerContract.View, 
     }
 
     @Override
-    public void displayFiles() {
+    public void displayFiles(List<Map<String, Object>> list) {
 
     }
 

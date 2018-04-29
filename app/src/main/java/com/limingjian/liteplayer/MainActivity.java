@@ -22,6 +22,8 @@ import android.widget.FrameLayout;
 
 import com.blankj.utilcode.util.FragmentUtils;
 import com.limingjian.liteplayer.business.filemanager.FileManagerFragment;
+import com.limingjian.liteplayer.business.mainmusic.MainMusicFragment;
+import com.limingjian.liteplayer.business.mainmusic.SongsFragment;
 import com.limingjian.liteplayer.business.videodirectory.VideoDirectoryFragment;
 import com.limingjian.liteplayer.callback.OnBackPressedCallBack;
 import com.limingjian.liteplayer.callback.OnSetToolBarTitleCallBack;
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
     private VideoDirectoryFragment mVideoDirectoryFragment;
 
     private FileManagerFragment mFileManagerFragment;
+
+    private SongsFragment mMainMusicFragment;
 
     private static OnBackPressedCallBack mOnBackPressedCallBack;
 
@@ -104,10 +108,26 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
                         return true;
                     case R.id.nav_directory:
                         return goDirectory();
+                    case R.id.nav_music:
+                        goMainMusic();
+                        return true;
+                        default:
                 }
                 return false;
             }
         };
+    }
+
+    private void goMainMusic() {
+        closeDrawer(mDlMainActivity);
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (mMainMusicFragment == null) {
+            mMainMusicFragment = SongsFragment.newInstance();
+            for (int i = 0; i < count; i++) {
+                getSupportFragmentManager().popBackStack();
+            }
+        }
+        ActivityUtils.addFragmentToActivity(getSupportFragmentManager(),mMainMusicFragment,R.id.fl_main_container,false);
     }
 
     private boolean goDirectory() {
@@ -134,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
 
     private void goVideo() {
         closeDrawer(mDlMainActivity);
+        mTbMain.setTitle(getString(R.string.video));
         int count = getSupportFragmentManager().getBackStackEntryCount();
         //清空回退栈
         for (int i = 0; i < count; i++) {
@@ -152,6 +173,13 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
             transaction.remove(mFileManagerFragment);
             transaction.commit();
             mFileManagerFragment = null;
+        }
+
+        if (mMainMusicFragment != null && mMainMusicFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mMainMusicFragment);
+            transaction.commit();
+            mMainMusicFragment = null;
         }
     }
 

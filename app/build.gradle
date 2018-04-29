@@ -50,5 +50,8 @@ dependencies {
     implementation rootProject.ext.dependencies["utilcode"]
     implementation rootProject.ext.dependencies["glide-transformations"]
     implementation rootProject.ext.dependencies["jiecaovideoplayer"]
+    implementation rootProject.ext.dependencies["AVLoadingIndicatorView"]
+    implementation rootProject.ext.dependencies["glide-annotations"]
+    annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 
 }
