@@ -7,4 +7,10 @@
     <string name="history">播放记录</string>
     <string name="refresh">刷新</string>
     <string name="search">搜索</string>
+    <string name="load_error_hint">刷新出问题了</string>
+    <string name="content_empty_default">这里什么也没有</string>
+    <string name="add_to_queue">添加到播放队列</string>
+    <string name="go_to_album">查看专辑</string>
+    <string name="go_to_artist">查看歌手</string>
+    <string name="delete">删除</string>
 </resources>

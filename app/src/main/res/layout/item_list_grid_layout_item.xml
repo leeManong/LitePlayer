@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.limingjian.liteplayer.widget.SquareImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/icon_singer_default"
+        android:scaleType="centerCrop"/>
+
+    <RelativeLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_below="@id/image"
+        android:background="#ffe8e8e8">
+
+        <ImageView
+            android:id="@+id/popup_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:tint="@color/background_floating_material_dark"
+            android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
+            style="@style/Widget.AppCompat.ActionButton.Overflow"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/popup_menu"
+            android:layout_toStartOf="@id/popup_menu"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:id="@+id/text_item_title"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                style="@style/ListItemTitleStyle"/>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/text_item_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="80dp"
+                    android:layout_centerVertical="true"
+                    style="@style/ListItemSubTitleStyle"/>
+
+                <View
+                    android:id="@+id/divider_subtitle"
+                    android:background="@color/colorDividerBlack"
+                    android:layout_width="1.0dip"
+                    android:layout_height="8dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_toRightOf="@id/text_item_subtitle"
+                    android:layout_toEndOf="@id/text_item_subtitle"
+                    android:layout_centerVertical="true" />
+
+                <TextView
+                    android:id="@+id/text_item_subtitle_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="80dp"
+                    android:layout_toRightOf="@id/divider_subtitle"
+                    android:layout_toEndOf="@id/divider_subtitle"
+                    android:layout_centerVertical="true"
+                    style="@style/ListItemSubTitleStyle" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
+

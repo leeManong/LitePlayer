@@ -75,6 +75,7 @@ public class VideoDirectoryFragment extends BaseFragment<VideoContract.View, Vid
     }
 
     private void initView() {
+        mOnToolBarTitleChanged.setToolBarTitle(getString(R.string.video));
         mVideoSwipeRefreshLayout.setOnRefreshListener(getOnRefreshListener());
 
         mVideoDirectoryAdapter = new VideoDirectoryAdapter(R.layout.video_directory_list_item, mVideoDirectories);
@@ -82,7 +83,7 @@ public class VideoDirectoryFragment extends BaseFragment<VideoContract.View, Vid
         mRvVideoList.setLayoutManager(new LinearLayoutManager(getContext()));
         mVideoDirectoryAdapter.setOnItemClickListener(getOnItemClickListener());
 
-        mOnToolBarTitleChanged.setToolBarTitle(getString(R.string.video));
+
     }
 
     private BaseQuickAdapter.OnItemClickListener getOnItemClickListener() {
@@ -180,6 +181,13 @@ public class VideoDirectoryFragment extends BaseFragment<VideoContract.View, Vid
     @Override
     public void displayDirectory(HashMap<String,VideoDirectory> videoDirectoryHashMap) {
         mVideoDirectoryHashMap = videoDirectoryHashMap;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mOnToolBarTitleChanged.setToolBarTitle(getString(R.string.video));
+
     }
 
     @Override

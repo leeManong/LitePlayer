@@ -1,6 +1,9 @@
 package com.limingjian.liteplayer.business.video;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +20,7 @@ import android.view.ViewGroup;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.limingjian.liteplayer.App;
 import com.limingjian.liteplayer.R;
 import com.limingjian.liteplayer.adapter.VideoAdapter;
 import com.limingjian.liteplayer.adapter.VideoDirectoryAdapter;
@@ -25,6 +29,7 @@ import com.limingjian.liteplayer.bean.VideoBean;
 import com.limingjian.liteplayer.bean.VideoDirectory;
 import com.limingjian.liteplayer.business.videodirectory.VideoContract;
 import com.limingjian.liteplayer.business.videodirectory.VideoPresenter;
+import com.limingjian.liteplayer.business.videoplayer.VideoPlayerActivity;
 import com.limingjian.liteplayer.callback.OnSetToolBarTitleCallBack;
 
 import java.util.ArrayList;
@@ -35,6 +40,9 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import cn.jzvd.JZUserAction;
+import cn.jzvd.JZVideoPlayer;
+import cn.jzvd.JZVideoPlayerStandard;
 
 /**
  * Created by lmj on 2018/4/11.
@@ -141,9 +149,32 @@ public class VideoFragment extends BaseFragment<VideoContract.View, VideoPresent
         return new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-
+                startPlayerVideo(position);
             }
         };
+    }
+
+    private void startPlayerVideo(int position) {
+        VideoBean videoBean = mVideoBeans.get(position);
+        String sHeight = videoBean.getHeight();
+        String sWidth = videoBean.getWidth();
+        int height;
+        int width;
+        if (sHeight == null) {
+            height = 0;
+            width = 0;
+        } else {
+            height = Integer.parseInt(sHeight);
+            width = Integer.parseInt(sWidth);
+        }
+        if (getActivity() != null) {
+            if (height >= width) {
+                JZVideoPlayerStandard.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            } else {
+                JZVideoPlayerStandard.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            }
+        }
+        JZVideoPlayerStandard.startFullscreen(getContext(),JZVideoPlayerStandard.class,videoBean.getData(),videoBean.getName());
     }
 
     @Override
@@ -192,6 +223,7 @@ public class VideoFragment extends BaseFragment<VideoContract.View, VideoPresent
     public void onPause() {
         super.onPause();
         mOnToolBarTitleChanged.setToolBarTitle(getString(R.string.video));
+        JZVideoPlayerStandard.releaseAllVideos();
     }
 
 }

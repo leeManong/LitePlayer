@@ -39,7 +39,7 @@ public class VideoAdapter extends BaseQuickAdapter<VideoBean, BaseViewHolder> {
         helper.setText(R.id.tv_video_size, item.getWidth() + "x" + item.getHeight());
 
         if (item.getLastWatcherTime() == 0) {
-            helper.setText(R.id.tv_video_duration, TimeUtils.millis2String(item.getDuration(), new SimpleDateFormat("HH:mm:ss", Locale.CHINA)));
+            helper.setText(R.id.tv_video_duration, com.limingjian.liteplayer.utils.TimeUtils.stringForTime((int)item.getDuration()));
         } else {
             helper.setText(R.id.tv_video_duration,
                     TimeUtils.millis2String(item.getLastWatcherTime(), new SimpleDateFormat("HH:mm:ss", Locale.CHINA)) + "//"
@@ -54,6 +54,7 @@ public class VideoAdapter extends BaseQuickAdapter<VideoBean, BaseViewHolder> {
                 Bitmap bitmap = resource;
                 int width = bitmap.getWidth();
                 int height = bitmap.getHeight();
+
                 int xWidth = 110 * height / 62;
                 int xHeight = xWidth * 9 / 16;
                 int clipHeight = width / 3;
@@ -66,7 +67,6 @@ public class VideoAdapter extends BaseQuickAdapter<VideoBean, BaseViewHolder> {
                     bitmap = ImageUtils.scale(bitmap, xWidth, xHeight);
 
                 }
-
                 Glide.with(App.getAppContext()).load(bitmap)
                         .apply(bitmapTransform(new RoundedCornersTransformation(25, 0))).into(imageView);
 
