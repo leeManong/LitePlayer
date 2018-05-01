@@ -76,6 +76,7 @@ public class FileManagerFragment extends BaseFragment<FileManagerContract.View, 
         return fragment;
     }
 
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnSetToolBarTitleCallBack) {
@@ -165,36 +166,20 @@ public class FileManagerFragment extends BaseFragment<FileManagerContract.View, 
             for (Map<String, Object> map : list) {
                 String fileType = (String) map.get(GetFilesUtils.FILE_INFO_TYPE);
                 Map<String, Object> gMap = new HashMap<>();
-                //FileBean fileBean = new FileBean();
-                //fileBean.setPath(file);
                 if (map.get(GetFilesUtils.FILE_INFO_ISFOLDER).equals(true)) {
                     gMap.put("fIsDir", true);
                     gMap.put("ftype", "Folder");
-                    //fileBean.setType("Folder");
-                    //fileBean.setNumMedia((int)map.get(GetFilesUtils.FILE_INFO_NUM_MEDIA));
-                    //fileBean.setNumSonFolder(Integer.parseInt((String)map.get(GetFilesUtils.FILE_INFO_NUM_SONDIRS)));
-                    //gMap.put("fInfo", map.get(GetFilesUtils.FILE_INFO_NUM_SONDIRS)+"个文件夹和"+
-                    // map.get(GetFilesUtils.FILE_INFO_NUM_MEDIA)+"个媒体文件");
                     gMap.put("fnumFile", map.get(GetFilesUtils.FILE_INFO_NUM_SONDIRS));
                     gMap.put("fnumMedia", map.get(GetFilesUtils.FILE_INFO_NUM_MEDIA));
-                    //mFileBeans.add(fileBean);
                 } else {
-                    //FileBean fileBean1 = new FileBean();
                     gMap.put("fIsDir", false);
                     if (FileUtils.isVideo(fileType)) {
-                        // gMap.put("fImg", R.drawable.filetype_text);
                         gMap.put("ftype", "VIDEO");
-                        //fileBean1.setType("VIDEO");
                     } else if (FileUtils.isAudio(fileType)) {
                         gMap.put("ftype", "AUDIO");
-                        //fileBean1.setType("AUDIO");
-                        // gMap.put("fImg", R.drawable.filetype_unknow);
                     } else {
                         gMap.put("ftype", "OTHER");
-                        //fileBean1.setType("OTHER");
                     }
-                    //gMap.put("fInfo","文件大小:"+GetFilesUtils.getInstance().getFileSize(map.get(GetFilesUtils.FILE_INFO_PATH).toString()));
-                    //mFileBeans.add(fileBean1);
                 }
                 gMap.put("fName", map.get(GetFilesUtils.FILE_INFO_NAME));
                 gMap.put(GetFilesUtils.FILE_INFO_PATH, map.get(GetFilesUtils.FILE_INFO_PATH));
@@ -203,8 +188,6 @@ public class FileManagerFragment extends BaseFragment<FileManagerContract.View, 
         } else {
             aList.clear();
         }
-        //sAdapter.notifyDataSetChanged();
-        //oldernowTv.setText(file);
     }
 
     private String getParentName(String path) {

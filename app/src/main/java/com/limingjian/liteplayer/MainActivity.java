@@ -22,13 +22,16 @@ import android.widget.FrameLayout;
 
 import com.blankj.utilcode.util.FragmentUtils;
 import com.limingjian.liteplayer.business.filemanager.FileManagerFragment;
+import com.limingjian.liteplayer.business.history.HistoryFragment;
 import com.limingjian.liteplayer.business.mainmusic.MainMusicFragment;
 import com.limingjian.liteplayer.business.mainmusic.SongsFragment;
 import com.limingjian.liteplayer.business.videodirectory.VideoDirectoryFragment;
 import com.limingjian.liteplayer.callback.OnBackPressedCallBack;
+import com.limingjian.liteplayer.callback.OnHistoryDataChangedCallBack;
 import com.limingjian.liteplayer.callback.OnSetToolBarTitleCallBack;
 import com.limingjian.liteplayer.utils.ActivityUtils;
 import com.limingjian.liteplayer.utils.GetFilesUtils;
+import com.limingjian.liteplayer.utils.MediaHistoryManager;
 import com.limingjian.liteplayer.widget.AutoClearEditText;
 
 import butterknife.BindView;
@@ -54,14 +57,17 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
 
     private SongsFragment mMainMusicFragment;
 
+    private HistoryFragment mHistoryFragment;
+
     private static OnBackPressedCallBack mOnBackPressedCallBack;
+
+    private static OnHistoryDataChangedCallBack mOnHistoryDataChangedCallBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
 
         initView();
 
@@ -71,7 +77,27 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
         }
+    }
 
+    public static void  setOnHistoryDataChangedCallBack(OnHistoryDataChangedCallBack onHistoryDataChangedCallBack) {
+        mOnHistoryDataChangedCallBack = onHistoryDataChangedCallBack;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                MediaHistoryManager.clearMediaHistory();
+                mOnHistoryDataChangedCallBack.refreshHistory();
+                break;
+                default:
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initView() {
@@ -94,7 +120,16 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
         if (mVideoDirectoryFragment == null) {
             mVideoDirectoryFragment = new VideoDirectoryFragment();
         }
+
         FragmentUtils.add(getSupportFragmentManager(), mVideoDirectoryFragment, R.id.fl_main_container);
+
+        /*mFileManagerFragment = FileManagerFragment.newInstance(GetFilesUtils.getInstance().getBasePath(), "内部存储");
+        mMainMusicFragment = SongsFragment.newInstance();
+        mHistoryFragment = HistoryFragment.newInstance();
+
+        FragmentUtils.add(getSupportFragmentManager(),mFileManagerFragment,R.id.fl_main_container,true);
+        FragmentUtils.add(getSupportFragmentManager(),mMainMusicFragment,R.id.fl_main_container,true);
+        FragmentUtils.add(getSupportFragmentManager(),mHistoryFragment,R.id.fl_main_container,true);*/
 
     }
 
@@ -111,11 +146,51 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
                     case R.id.nav_music:
                         goMainMusic();
                         return true;
+                    case R.id.nv_history:
+                        goHistory();
+                        return true;
                         default:
                 }
                 return false;
             }
         };
+    }
+
+    private void goHistory() {
+        closeDrawer(mDlMainActivity);
+        mTbMain.getMenu().findItem(R.id.action_search).setVisible(false);
+        mTbMain.getMenu().findItem(R.id.action_refresh).setVisible(false);
+        mTbMain.getMenu().findItem(R.id.action_delete).setVisible(true);
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (mHistoryFragment == null) {
+            mHistoryFragment = HistoryFragment.newInstance();
+            for (int i = 0; i < count; i++) {
+                getSupportFragmentManager().popBackStack();
+            }
+        }
+
+        if (mVideoDirectoryFragment != null && mHistoryFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mHistoryFragment);
+            transaction.commit();
+            mHistoryFragment = null;
+        }
+
+        if (mFileManagerFragment != null && mFileManagerFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mFileManagerFragment);
+            transaction.commit();
+            mFileManagerFragment = null;
+        }
+
+        if (mMainMusicFragment != null && mMainMusicFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mMainMusicFragment);
+            transaction.commit();
+            mMainMusicFragment = null;
+        }
+
+        ActivityUtils.addFragmentToActivity(getSupportFragmentManager(),mHistoryFragment,R.id.fl_main_container,false);
     }
 
     private void goMainMusic() {
@@ -127,10 +202,35 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
                 getSupportFragmentManager().popBackStack();
             }
         }
+
+        if (mHistoryFragment != null && mHistoryFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mHistoryFragment);
+            transaction.commit();
+            mHistoryFragment = null;
+        }
+
+        if (mFileManagerFragment != null && mFileManagerFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mFileManagerFragment);
+            transaction.commit();
+            mFileManagerFragment = null;
+        }
+
+        if (mVideoDirectoryFragment != null && mMainMusicFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mMainMusicFragment);
+            transaction.commit();
+            mMainMusicFragment = null;
+        }
+
         ActivityUtils.addFragmentToActivity(getSupportFragmentManager(),mMainMusicFragment,R.id.fl_main_container,false);
     }
 
     private boolean goDirectory() {
+        mTbMain.getMenu().findItem(R.id.action_search).setVisible(false);
+        mTbMain.getMenu().findItem(R.id.action_refresh).setVisible(false);
+        mTbMain.getMenu().findItem(R.id.action_delete).setVisible(false);
         closeDrawer(mDlMainActivity);
         int count = getSupportFragmentManager().getBackStackEntryCount();
         if (mFileManagerFragment == null) {
@@ -138,6 +238,27 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
             for (int i = 0; i < count; i++) {
                 getSupportFragmentManager().popBackStack();
             }
+        }
+
+        if (mHistoryFragment != null && mHistoryFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mHistoryFragment);
+            transaction.commit();
+            mHistoryFragment = null;
+        }
+
+        if (mVideoDirectoryFragment != null && mFileManagerFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mFileManagerFragment);
+            transaction.commit();
+            mFileManagerFragment = null;
+        }
+
+        if (mMainMusicFragment != null && mMainMusicFragment.isAdded()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(mMainMusicFragment);
+            transaction.commit();
+            mMainMusicFragment = null;
         }
 
         //FragmentUtils.add(getSupportFragmentManager(), mFileManagerFragment, R.id.fl_main_container, false);
@@ -153,6 +274,9 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
     }
 
     private void goVideo() {
+        mTbMain.getMenu().findItem(R.id.action_search).setVisible(true);
+        mTbMain.getMenu().findItem(R.id.action_refresh).setVisible(true);
+        mTbMain.getMenu().findItem(R.id.action_delete).setVisible(false);
         closeDrawer(mDlMainActivity);
         mTbMain.setTitle(getString(R.string.video));
         int count = getSupportFragmentManager().getBackStackEntryCount();
@@ -161,12 +285,12 @@ public class MainActivity extends AppCompatActivity implements OnSetToolBarTitle
             getSupportFragmentManager().popBackStack();
         }
 
-        /*if (mVideoDirectoryFragment != null && mVideoDirectoryFragment.isAdded()) {
+        if (mHistoryFragment != null && mHistoryFragment.isAdded()) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.remove(mVideoDirectoryFragment);
+            transaction.remove(mHistoryFragment);
             transaction.commit();
-            mVideoDirectoryFragment = null;
-        }*/
+            mHistoryFragment = null;
+        }
 
         if (mFileManagerFragment != null && mFileManagerFragment.isAdded()) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

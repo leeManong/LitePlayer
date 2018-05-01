@@ -25,15 +25,10 @@ public class SongsPresenter extends BasePresenterImpl<SongsContract.View> implem
 
     @Override
     public void loadSongs() {
+        getView().showLoading();
         Disposable disposable = getAllSongs(App.getAppContext())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe(new Consumer<Disposable>() {
-                    @Override
-                    public void accept(Disposable disposable) throws Exception {
-                        getView().showLoading();
-                    }
-                })
                 .subscribe(new Consumer<List<Song>>() {
                     @Override
                     public void accept(List<Song> songs) throws Exception {
@@ -53,7 +48,7 @@ public class SongsPresenter extends BasePresenterImpl<SongsContract.View> implem
             @Override
             public void subscribe(ObservableEmitter<List<Song>> e) throws Exception {
                 List<Song> arrayList = new ArrayList<>();
-                if ((cursor != null) && (cursor.moveToFirst()))
+                if ((cursor != null) && (cursor.moveToFirst())) {
                     do {
                         long id = cursor.getLong(0);
                         String title = cursor.getString(1);
@@ -68,6 +63,7 @@ public class SongsPresenter extends BasePresenterImpl<SongsContract.View> implem
                         arrayList.add(new Song(id, albumId, artistId, title, artist, album, duration, trackNumber, path));
                     }
                     while (cursor.moveToNext());
+                }
                 if (cursor != null){
                     cursor.close();
                 }

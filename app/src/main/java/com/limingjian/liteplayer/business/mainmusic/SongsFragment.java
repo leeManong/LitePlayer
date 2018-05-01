@@ -30,6 +30,7 @@ import com.limingjian.liteplayer.callback.OnSetToolBarTitleCallBack;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -62,22 +63,35 @@ public class SongsFragment extends BaseFragment<SongsContract.View, SongsPresent
     private MediaPlayer mMediaPlayer;
 
     private SongListAdapter mSongListAdapter;
-    private List<Song> mSongList;
+    private List<Song> mSongList = new ArrayList<>();
 
     private boolean isPaused;
 
     private OnSetToolBarTitleCallBack mOnSetToolBarTitleCallBack;
+
+    private int currPosition = -1;
 
     public static SongsFragment newInstance() {
         SongsFragment fragment = new SongsFragment();
         return fragment;
     }
 
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnSetToolBarTitleCallBack) {
             mOnSetToolBarTitleCallBack = (OnSetToolBarTitleCallBack) context;
         }
+    }
+
+    @Override
+    public SongsPresenter bindPresenter() {
+        return new SongsPresenter();
+    }
+
+    @Override
+    public SongsContract.View bindView() {
+        return this;
     }
 
     @Nullable
@@ -94,6 +108,10 @@ public class SongsFragment extends BaseFragment<SongsContract.View, SongsPresent
         initData();
         mOnSetToolBarTitleCallBack.setToolBarTitle("音频");
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mSongListAdapter = new SongListAdapter(R.layout.song_list_item, mSongList);
+        mRecyclerView.setAdapter(mSongListAdapter);
+        mSongListAdapter.setOnItemClickListener(getOnItemClickListener());
+
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnPreparedListener(getOnPreparedListener());
 
@@ -105,6 +123,9 @@ public class SongsFragment extends BaseFragment<SongsContract.View, SongsPresent
 
     }
 
+    private void initData() {
+        getBindPresenter().loadSongs();
+    }
 
     private MediaPlayer.OnPreparedListener getOnPreparedListener() {
 
@@ -116,45 +137,13 @@ public class SongsFragment extends BaseFragment<SongsContract.View, SongsPresent
         };
     }
 
-    private BaseQuickAdapter.OnItemClickListener getOnItemClickListener() {
-        return new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                String path = mSongList.get(position).path;
-                try {
-                    mMediaPlayer.reset();
-                    mMediaPlayer.setDataSource(path);
-                    mMediaPlayer.prepareAsync();
-                    mBtnStartPause.setBackgroundResource(R.mipmap.ic_pause);
-
-
-                    Song song = mSongList.get(position);
-                    String uri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), song.albumId).toString();
-                    GlideApp.with(App.getAppContext()).load(uri)
-                            .placeholder(R.mipmap.icon_album_default)
-                            .into(mImage);
-                    mTvSongName.setText(song.title);
-                    mSongArtist.setText(song.artistName);
-
-                } catch (IOException e) {
-                    Log.e(TAG, "onItemClick: " + e.getMessage());
-                }
-            }
-        };
-    }
-
-    private void initData() {
-        getBindPresenter().loadSongs();
-    }
-
     @Override
-    public SongsPresenter bindPresenter() {
-        return new SongsPresenter();
-    }
-
-    @Override
-    public SongsContract.View bindView() {
-        return this;
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+        mMediaPlayer.stop();
+        mMediaPlayer.release();
+        mMediaPlayer = null;
     }
 
     @Override
@@ -174,19 +163,41 @@ public class SongsFragment extends BaseFragment<SongsContract.View, SongsPresent
 
     @Override
     public void displaySongs(List<Song> songs) {
-        mSongList = songs;
-        mSongListAdapter = new SongListAdapter(R.layout.song_list_item, songs);
-        mRecyclerView.setAdapter(mSongListAdapter);
-        mSongListAdapter.setOnItemClickListener(getOnItemClickListener());
+        mSongList.clear();
+        mSongList.addAll(songs);
+        mSongListAdapter.notifyDataSetChanged();
+
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+    private BaseQuickAdapter.OnItemClickListener getOnItemClickListener() {
+        return new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                playMusic(position);
+                currPosition = position;
+            }
+        };
+    }
+
+    private void playMusic(int position) {
+        String path = mSongList.get(position).path;
+        try {
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(path);
+            mMediaPlayer.prepareAsync();
+            mBtnStartPause.setBackgroundResource(R.mipmap.ic_pause);
+
+            Song song = mSongList.get(position);
+            String uri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), song.albumId).toString();
+            GlideApp.with(App.getAppContext()).load(uri)
+                    .placeholder(R.mipmap.icon_album_default)
+                    .into(mImage);
+            mTvSongName.setText(song.title);
+            mSongArtist.setText(song.artistName);
+
+        } catch (IOException e) {
+            Log.e(TAG, "onItemClick: " + e.getMessage());
+        }
     }
 
     @OnClick({R.id.btn_start_pause, R.id.btn_next})
@@ -195,16 +206,22 @@ public class SongsFragment extends BaseFragment<SongsContract.View, SongsPresent
             case R.id.btn_start_pause:
                 if (mMediaPlayer.isPlaying()) {
                     mMediaPlayer.pause();
-                    isPaused = true;
                     mBtnStartPause.setBackgroundResource(R.mipmap.ic_start);
                 } else {
                     mMediaPlayer.start();
                     mBtnStartPause.setBackgroundResource(R.mipmap.ic_pause);
                 }
-
                 break;
             case R.id.btn_next:
+                if (currPosition == mSongList.size()-1) {
+                    currPosition = 0;
+                    playMusic(currPosition);
+                } else {
+                    currPosition++;
+                    playMusic(currPosition);
+                }
                 break;
+            default:
         }
     }
 

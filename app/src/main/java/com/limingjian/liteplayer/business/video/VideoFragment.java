@@ -25,12 +25,14 @@ import com.limingjian.liteplayer.R;
 import com.limingjian.liteplayer.adapter.VideoAdapter;
 import com.limingjian.liteplayer.adapter.VideoDirectoryAdapter;
 import com.limingjian.liteplayer.base.BaseFragment;
+import com.limingjian.liteplayer.bean.MediaBean;
 import com.limingjian.liteplayer.bean.VideoBean;
 import com.limingjian.liteplayer.bean.VideoDirectory;
 import com.limingjian.liteplayer.business.videodirectory.VideoContract;
 import com.limingjian.liteplayer.business.videodirectory.VideoPresenter;
 import com.limingjian.liteplayer.business.videoplayer.VideoPlayerActivity;
 import com.limingjian.liteplayer.callback.OnSetToolBarTitleCallBack;
+import com.limingjian.liteplayer.utils.MediaHistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,16 +110,6 @@ public class VideoFragment extends BaseFragment<VideoContract.View, VideoPresent
         }
 
         getBindPresenter().loadVideo();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(100);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
         getBindPresenter().loadDirectory();
 
     }
@@ -150,6 +142,11 @@ public class VideoFragment extends BaseFragment<VideoContract.View, VideoPresent
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 startPlayerVideo(position);
+                MediaBean mediaBean = new MediaBean();
+                mediaBean.setName(mVideoBeans.get(position).getName());
+                mediaBean.setVideo(true);
+                mediaBean.setPath(mVideoBeans.get(position).getData());
+                MediaHistoryManager.insertMedia(mediaBean);
             }
         };
     }
